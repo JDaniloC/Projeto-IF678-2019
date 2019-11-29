@@ -33,40 +33,40 @@ class Dns(Objeto):
         
     def desligar(self):
         self.ligado = False
-        self.resultado['text'] = 'Desligado'
-        self.resultado['fg'] = 'black'
+        self.messageBlack('Desligado')
 
     def turnOn(self):
         self.ligado = True
-        self.resultado['text'] = 'Ligado'
-        self.resultado['fg'] = 'black'
+        self.messageBlack('Ligado')
 
     def iniciar(self):
-        if self.ligado: self.resultado['text'] = 'Preparado para receber...'
-        else:
-            self.resultado['text'] = "Não está ligado!"
-            self.resultado['fg'] = 'red'
+        if self.ligado: self.messageBlack('Preparado para receber...')
+        else: self.messageRed("Não está ligado!")
+
         while self.ligado:
             self.janela.update_idletasks()
             self.janela.update()
             if self.ligado:
                 mensagem, ip, port = self.servidor.recebe()
+                endereco = ip+":"+str(port)
                 if mensagem != None:
                     requisicao, mensagem = mensagem.split()
                     if requisicao == 'SignIn':
-                        self.lista.insert(END, " " + mensagem + " = " + ip + ":" + str(port))
-                        self.enderecos[mensagem] = (ip, port)
+                        self.lista.insert(END, " " + mensagem + " = " + endereco)
+                        self.enderecos[mensagem] = endereco
                     else:
-                        if (ip, port) not in self.enderecos.values():
-                            self.lista.insert(END, " " + "Client"+str(self.clients) + " = " + ip + ":" + str(port))
-                            self.enderecos["Client"+str(self.clients)] = (ip, port)
+                        if endereco not in self.enderecos.values():
+                            self.lista.insert(END, " " + "Client"+str(self.clients) + " = " + endereco)
+                            self.enderecos["Client"+str(self.clients)] = endereco
                             self.clients += 1
                         endereco = (ip, port)
-                        if mensagem in self.enderecos: # TALVEZ BUG
-                            self.servidor.responde(self.enderecos[mensagem], endereco)
-                        else:
-                            self.servidor.responde("NULL", endereco)
+                        if mensagem in self.enderecos: envio = self.servidor.responde(self.enderecos[mensagem], endereco)
+                        else: envio = self.servidor.responde("NULL", endereco)
+                        
+                        if envio == "Failed": self.messageRed("Envio não funcionou")
+                        else: self.messageBlack("Respondeu requisição")
             self.janela.update_idletasks()
+    
 
 if __name__ == '__main__':
     program = Dns()

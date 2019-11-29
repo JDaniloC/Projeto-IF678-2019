@@ -66,3 +66,11 @@ class Objeto:
     def limpa(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
+
+    def messageBlack(self, message):
+        self.resultado['text'] = message
+        self.resultado['fg'] = 'black'
+        
+    def messageRed(self, message):
+        self.resultado['text'] = message
+        self.resultado['fg'] = 'red'
