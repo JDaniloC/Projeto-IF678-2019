@@ -37,11 +37,12 @@ class Client(Objeto):
             ip = self.entrada1.get()
             porta = self.entrada2.get()
             mensagem = self.entrada3.get()
-            if self.servidor.responde("Get "+mensagem, (ip, int(porta))) != "Failed":
-                mensagem, ip, port = self.servidor.recebe()
+            if self.servidor.responder("Get "+mensagem, (ip, int(porta))) != "Failed":
+                mensagem, ip, port = self.servidor.receber()
                 if mensagem != None and mensagem != "NULL":
                     self.ipServer, self.portServer = mensagem.split(":")
                     self.portServer = int(self.portServer)
+                    self.serverAddress = (self.ipServer, self.portServer)
                     self.principal()
                 else: self.messageRed("Servidor não existe!")
             else: self.messageRed("Não consegui esse conectar")
@@ -49,7 +50,7 @@ class Client(Objeto):
     
     def principal(self):
         self.limpa()
-        self.janela.geometry("230x280+600+400")
+        self.janela.geometry("300x280+600+400")
 
         self.resultado = Label(self.frame, text = 'Transferência de Arquivos', bg = self.cor)
         Label(self.frame, text = "Digite o nome do arquivo: ", bg = self.cor).grid(row = 1, pady = 2)
@@ -75,32 +76,43 @@ class Client(Objeto):
         enviar.grid(row = 5, columnspan = 3)
 
     def verificar3(self):
-        if self.variavel == 0:
+        if self.variavel.get() == 0:
             self.messageBlack("Enviando arquivo")
             self.enviaArquivo(self.entrada1.get())
         else:
             self.messageBlack("Enviando arquivos")
-            lista = listdir(self.entrada2.get())
-            for i in lista:
-                self.enviaArquivo(i)
+            self.enviaPasta(self.entrada2.get())
+
+    def enviaPasta(self, path):
+        print(f"self.servidor.enviarPasta({path}, {str(self.serverAddress)})")
+        self.servidor.enviarPasta(path, self.serverAddress)
+        resultado = self.servidor.getReport()
+        if resultado.split()[0] == "FINISH":
+            self.messageBlack("Arquivos enviados com Sucesso!")
+        else:
+            resultado = resultado.split()[1]
+            if resultado == "FOLDER":
+                self.messageRed("Pasta inacessível!")
+            elif resultado == "SEND":
+                self.messageRed("Servidor inacessível!")
+            elif resultado == "FILE":
+                self.messageRed("Arquivo inacessível!")
+            else:
+                self.messageRed("Algo deu errado...")
 
     def enviaArquivo(self, nome):
-        arquivo = self.abrirArquivo(nome)
-        if arquivo != "Fail":
-            linha = arquivo.read(2048)
-            while linha:
-                self.servidor.responde(linha, (self.ipServer, self.portServer))
-                linha = arquivo.read(2048)
-            self.lista.insert(END, nome)
+        self.servidor.enviarArquivo(nome, self.serverAddress)
+        resultado = self.servidor.getReport()
+        if resultado.split()[0] == "FINISH":
+            self.messageBlack("Arquivos enviados com Sucesso!")
         else:
-            self.messageRed("Arquivo inexistente")
-
-    def abrirArquivo(self, nome):
-        try:
-            arquivo = open(nome, 'r')
-            return arquivo
-        except:
-            return "Fail"
+            resultado = resultado.split()[1]
+            if resultado == "SEND":
+                self.messageRed("Servidor inacessível!")
+            elif resultado == "FILE":
+                self.messageRed("Arquivo inacessível!")
+            else:
+                self.messageRed("Algo deu errado...")
 
 if __name__ == '__main__':
     servidor = Client()

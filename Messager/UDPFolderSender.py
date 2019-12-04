@@ -1,5 +1,4 @@
 from socket import *
-from time import sleep
 from os import listdir
 
 
@@ -62,4 +61,3 @@ class Client:
 client = Client()
 destino = ("192.168.0.110", 12000)
 client.enviarPasta("envios", destino)
-#client.enviar(destino, b"Teste")
