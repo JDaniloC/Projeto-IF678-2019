@@ -47,7 +47,7 @@ class Dns(Objeto):
             self.janela.update_idletasks()
             self.janela.update()
             if self.ligado:
-                mensagem, ip, port = self.servidor.recebe()
+                mensagem, ip, port = self.servidor.receber()
                 endereco = ip+":"+str(port)
                 if mensagem != None:
                     requisicao, mensagem = mensagem.split()
@@ -60,8 +60,8 @@ class Dns(Objeto):
                             self.enderecos["Client"+str(self.clients)] = endereco
                             self.clients += 1
                         endereco = (ip, port)
-                        if mensagem in self.enderecos: envio = self.servidor.responde(self.enderecos[mensagem], endereco)
-                        else: envio = self.servidor.responde("NULL", endereco)
+                        if mensagem in self.enderecos: envio = self.servidor.responder(self.enderecos[mensagem], endereco)
+                        else: envio = self.servidor.responder("NULL", endereco)
                         
                         if envio == "Failed": self.messageRed("Envio não funcionou")
                         else: self.messageBlack("Respondeu requisição")

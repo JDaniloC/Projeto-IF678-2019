@@ -1,5 +1,4 @@
 from socket import *
-from time import sleep
 from os import listdir
 
 
