@@ -14,47 +14,27 @@ class Objeto:
         self.titulo = titulo
 
         self.cor = cor
-        self.ip = ''
         self.port = porta
-        
-        self.inicio()
     
     def inicio(self):
         self.titulo = Label(self.frame, text = self.titulo, bg = self.cor)
-        Label(self.frame, text = "Digite seu Ip: ", bg = self.cor).grid(row = 1, pady = 2)
-        Label(self.frame, text = "Digite a porta:", bg = self.cor).grid(row = 2, pady = 2)
+        Label(self.frame, text = "Digite a porta:", bg = self.cor, pady = 5).grid(row = 1, pady = 2)
         
-        self.entrada1 = Entry(self.frame, width = 15)
-        self.entrada1.insert(0, "127.0.0.1")
-        self.entrada2 = Entry(self.frame, width = 15)
-        self.entrada2.insert(0, str(self.port))
+        self.entrada = Entry(self.frame, width = 15)
+        self.entrada.insert(0, str(self.port))
 
-        local = Radiobutton(self.frame, text = "Local", command = self.localIp, indicatoron = False, width = 5)
-        proprio = Radiobutton(self.frame, text = "Online", command = self.selfIp, indicatoron = False, width = 5)
-        enviar = Button(self.frame, text = "Iniciar", command = self.verificar)
+        enviar = Button(self.frame, text = "Iniciar", command = self.verificar, width = 4)
 
-        self.titulo.grid(row = 0, columnspan = 3)
-        self.entrada1.grid(row = 1, column = 1)
-        self.entrada2.grid(row = 2, column = 1)
-        local.grid(row = 1, column = 2)
-        proprio.grid(row = 2, column = 2)
-        enviar.grid(row = 3, columnspan = 3)
-    
-    def localIp(self): 
-        self.entrada1.delete(0, 'end')
-        self.entrada1.insert(0, "127.0.0.1")
-    
-    def selfIp(self): 
-        self.entrada1.delete(0, 'end')
-        self.entrada1.insert(0, str(gethostbyname(gethostname())))
+        self.titulo.grid(row = 0, columnspan = 2)
+        self.entrada.grid(row = 1, column = 1)
+        enviar.grid(row = 2, columnspan = 2)
     
     def verificar(self):
-        if self.entrada1.get() != '' and self.entrada2.get().isnumeric():
-            self.ip = self.entrada1.get()
-            self.port = int(self.entrada2.get())
+        if self.entrada.get().isnumeric():
+            self.port = int(self.entrada.get())
             self.main()
         else:
-            self.titulo['text'] = 'Digite as informações corretamente'
+            self.titulo['text'] = 'Digite a porta corretamente!'
             self.titulo['fg'] = 'red'
 
     def main(self):
@@ -74,3 +54,8 @@ class Objeto:
     def messageRed(self, message):
         self.resultado['text'] = message
         self.resultado['fg'] = 'red'
+
+if __name__ == "__main__":
+    print("oi")
+    objeto = Objeto("Default", 'black', 1000)
+    objeto.inicio()

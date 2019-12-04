@@ -2,11 +2,10 @@ from socket import *
 
 class Udp:
     def __init__(self, opcao, ip, port):
-        self.ip = ip
         self.port = port
         self.control = socket(AF_INET, SOCK_DGRAM)
         if opcao == 'server':
-            self.control.bind((self.ip, self.port))
+            self.control.bind(('', self.port))
         self.control.settimeout(5.0)
 
     def recebe(self):

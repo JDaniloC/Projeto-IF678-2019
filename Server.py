@@ -7,6 +7,7 @@ class Server(Objeto):
     def __init__(self):
         super().__init__("Server", "Azure", 19000)
         self.cor = "Azure"
+        self.inicio()
 
     def main(self):
         self.limpa()

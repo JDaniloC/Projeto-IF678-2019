@@ -11,6 +11,8 @@ class Dns(Objeto):
         self.enderecos = {}
         self.ligado = False
         self.clients = 0
+
+        self.inicio()
             
     def main(self):
         self.limpa()

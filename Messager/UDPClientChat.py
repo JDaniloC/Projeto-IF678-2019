@@ -9,7 +9,7 @@ def loading():
     print()
 
 
-name = '172.20.4.154'
+name = '172.20.4.148'
 port = 12000
 client = socket(AF_INET, SOCK_DGRAM)
 while True:
