@@ -17,7 +17,7 @@ class Dns(Objeto):
     def main(self):
         self.limpa()
         self.janela.geometry("230x260+600+400")
-        self.servidor = Udp('server', self.ip, self.port)
+        self.servidor = Udp('server', self.port)
             
         Label(self.frame, text = "Servidor DNS", bg = self.cor).grid(row = 0, columnspan = 3)
         Label(self.frame, text = "Endereços registrados:", bg = self.cor).grid(row = 1)
@@ -50,13 +50,15 @@ class Dns(Objeto):
             self.janela.update()
             if self.ligado:
                 mensagem, ip, port = self.servidor.receber()
-                endereco = ip+":"+str(port)
                 if mensagem != None:
                     requisicao, mensagem = mensagem.split()
                     if requisicao == 'SignIn':
+                        mensagem, porta = mensagem.split(":")
+                        endereco = ip + ":" + porta
                         self.lista.insert(END, " " + mensagem + " = " + endereco)
                         self.enderecos[mensagem] = endereco
                     else:
+                        endereco = ip+":"+str(port)
                         if endereco not in self.enderecos.values():
                             self.lista.insert(END, " " + "Client"+str(self.clients) + " = " + endereco)
                             self.enderecos["Client"+str(self.clients)] = endereco

@@ -2,10 +2,10 @@ from socket import *
 from os import listdir
 
 class Udp:
-    def __init__(self, opcao, ip, port):
+    def __init__(self, opcao, port = None):
         self.port = port
         self.control = socket(AF_INET, SOCK_DGRAM)
-        if opcao == 'server':
+        if opcao == 'server' and port != None:
             self.control.bind(('', self.port))
         self.control.settimeout(5.0)
 
