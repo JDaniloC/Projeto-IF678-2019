@@ -33,17 +33,24 @@ class Udp:
         try:
             nomes = listdir(pasta)
             for arquivo in nomes:
-                self.report = arquivo
+                self.report += " " + arquivo
                 self.enviarArquivo(pasta+"/"+arquivo, destino)
-            if self.report.slit()[0] != "FAIL":
-                self.report = "FINISH"
+                if self.report.split()[0] != "FINISH":
+                    break
         except:
-            self.report = "FAIL FOLDER"
+            if self.report.split()[0] != "FAIL":
+                self.report = "FAIL FOLDER"
 
     def enviarArquivo(self, path, destino):
+        print(path)
+        self.report = "FINISH"
         self.tentativa = 0
         try:
             arquivo = open(path, 'rb')
+        except:
+            self.report = "FAIL FILE"
+
+        if self.report == "FINISH":
             try:
                 self.responde(destino, "FILE "+path.split("/")[1])
                 parte = arquivo.read(1024)
@@ -58,13 +65,10 @@ class Udp:
                         if self.tentativa == 3:
                             parte = False
                 self.responde(destino, "CLOSE CONN")
-                self.report = "FINISH"
             except:
-                print("Erro no envio")
                 self.report = "FAIL SEND"
-        except:
-            print("erro na pasta")
-            self.report = "FAIL FILE"
+            finally:
+                arquivo.close()
 
     def enviar(self, destino, mensagem):
         try:
