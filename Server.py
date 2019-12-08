@@ -2,6 +2,7 @@ from tkinter import *
 from socket import *
 from Objeto import Objeto
 from Transporte.UDP import Udp
+from os import listdir
 
 class Server(Objeto):
     def __init__(self):
@@ -37,7 +38,7 @@ class Server(Objeto):
             ip = self.entrada1.get()
             porta = self.entrada2.get()
             mensagem = self.entrada3.get() + ":" + str(self.port)
-            if self.servidor.responder("SignIn "+mensagem, (ip, int(porta))) != "Failed":
+            if self.servidor.responder("SignIn "+mensagem, (ip, int(porta))) != "FAIL":
                 self.principal()
             else:
                 self.titulo['text'] = "Não consegui esse conectar"
@@ -85,20 +86,59 @@ class Server(Objeto):
                     endereco = ip+":"+str(port)
                     requisicao, mensagem = mensagem.split()
                     if requisicao == 'FILE':
-                        self.servidor.receberArquivo(mensagem)
-                        resultado = self.servidor.getReport()
-                        if resultado.split()[0] == "FINISH":
-                            self.messageBlack("Arquivo recebido com Sucesso!")
-                            self.lista.insert(END, mensagem)
-                        else:
-                            resultado = resultado.split()[1]
-                            if resultado == "SEND":
-                                self.messageRed("Cliente inacessível!")
-                            elif resultado == "TIME":
-                                self.messageRed("Cliente inacessível!")
-                            else:
-                                self.messageRed("Algo deu errado...")
+                        self.enviaArquivo(mensagem, (ip, port))
+                    elif requisicao == 'FOLDER':
+                        self.enviaPasta(mensagem, (ip, port))
+                    elif requisicao == "LIST":
+                        mensagem = self.codificar(self.listar())
+                        self.servidor.responder(mensagem, (ip, port))
+                    else:
+                        self.messageRed("Não entendi.")
             self.janela.update_idletasks()
+    
+    def enviaArquivo(self, nome, endereco):
+        self.servidor.enviarArquivo(nome, endereco)
+        resultado = self.servidor.getReport()
+        if resultado.split()[0] == "FINISH":
+            self.messageBlack("Arquivo enviado com Sucesso!")
+        else:
+            resultado = resultado.split()[1]
+            if resultado == "SEND":
+                self.messageRed("Cliente caiu!")
+            elif resultado == "FILE":
+                self.messageRed("Arquivo inacessível!")
+            else:
+                self.messageRed("Algo deu errado...")
+    
+    def enviaPasta(self, path, endereco):
+        self.servidor.enviarPasta(path, endereco)
+        resultado = self.servidor.getReport()
+        if resultado.split()[0] == "FINISH":
+            self.messageBlack("Arquivos enviados com Sucesso!")
+        else:
+            resultado = resultado.split()[1]
+            if resultado == "FOLDER":
+                self.messageRed("Pasta inacessível!")
+            elif resultado == "SEND":
+                self.messageRed("Servidor inacessível!")
+            elif resultado == "FILE":
+                self.messageRed("Arquivo inacessível!")
+            else:
+                self.messageRed("Algo deu errado...")
+
+    def listar(self, path = '.'):
+        arquivos = listdir(path)
+        dic = {}
+        dic[path] = [x for x in arquivos if x.split('.') != [x]]
+        for x in [x for x in arquivos if x.split('.') == [x]]:
+            dic.update(self.listar(path+'/'+x))
+        return dic
+
+    def codificar(self, dicionario):
+        string = ''
+        for nome in dicionario:
+            string += nome + ':' + str(dicionario[nome]) + "§"
+        return string.replace("'", "")
 
 if __name__ == '__main__':
     servidor = Server()

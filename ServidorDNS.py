@@ -67,7 +67,7 @@ class Dns(Objeto):
                         if mensagem in self.enderecos: envio = self.servidor.responder(self.enderecos[mensagem], endereco)
                         else: envio = self.servidor.responder("NULL", endereco)
                         
-                        if envio == "Failed": self.messageRed("Envio não funcionou")
+                        if envio == "FAIL": self.messageRed("Envio não funcionou")
                         else: self.messageBlack("Respondeu requisição")
             self.janela.update_idletasks()
     

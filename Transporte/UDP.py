@@ -23,9 +23,9 @@ class Udp:
     def responder(self, mensagem, endereco):
         try:
             self.control.sendto(mensagem.encode(), endereco)
-            resultado = 'Successfull'
+            resultado = 'FINISH'
         except:
-            resultado = 'Failed'
+            resultado = 'FAIL'
         return resultado
     
     def enviarPasta(self, pasta, destino):
@@ -51,8 +51,8 @@ class Udp:
 
         if self.report == "FINISH":
             try:
-                self.responder("FILE "+path.split("/")[1], destino)
-                parte = arquivo.read(1024)
+                self.responder("FILE "+path, destino)
+                parte = arquivo.read(2048)
                 while parte:
                     ack = self.enviar(destino, parte)
                     if ack != "FAIL":
