@@ -85,7 +85,6 @@ class Client(Objeto):
             self.enviaPasta(self.entrada2.get())
 
     def enviaPasta(self, path):
-        print(f"self.servidor.enviarPasta({path}, {str(self.serverAddress)})")
         self.servidor.enviarPasta(path, self.serverAddress)
         resultado = self.servidor.getReport()
         if resultado.split()[0] == "FINISH":

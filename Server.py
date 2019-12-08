@@ -81,12 +81,10 @@ class Server(Objeto):
             self.janela.update()
             if self.ligado:
                 mensagem, ip, port = self.servidor.receber()
-                endereco = ip+":"+str(port)
                 if mensagem != None:
-                    print("Recebi uma mensagem!")
+                    endereco = ip+":"+str(port)
                     requisicao, mensagem = mensagem.split()
                     if requisicao == 'FILE':
-                        print("É um arquivo!")
                         self.servidor.receberArquivo(mensagem)
                         resultado = self.servidor.getReport()
                         if resultado.split()[0] == "FINISH":
@@ -100,8 +98,6 @@ class Server(Objeto):
                                 self.messageRed("Cliente inacessível!")
                             else:
                                 self.messageRed("Algo deu errado...")
-                else:
-                    print("Esperando...")
             self.janela.update_idletasks()
 
 if __name__ == '__main__':

@@ -42,7 +42,6 @@ class Udp:
                 self.report = "FAIL FOLDER"
 
     def enviarArquivo(self, path, destino):
-        print(path)
         self.report = "FINISH"
         self.tentativa = 0
         try:
@@ -52,7 +51,7 @@ class Udp:
 
         if self.report == "FINISH":
             try:
-                self.responde(destino, "FILE "+path.split("/")[1])
+                self.responder("FILE "+path.split("/")[1], destino)
                 parte = arquivo.read(1024)
                 while parte:
                     ack = self.enviar(destino, parte)
@@ -64,7 +63,7 @@ class Udp:
                         self.tentativa += 1
                         if self.tentativa == 3:
                             parte = False
-                self.responde(destino, "CLOSE CONN")
+                self.responder("CLOSE CONN", destino)
             except:
                 self.report = "FAIL SEND"
             finally:
