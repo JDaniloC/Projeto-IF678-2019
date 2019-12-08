@@ -12,9 +12,9 @@ class Server(Objeto):
     def main(self):
         self.limpa()
         self.janela.geometry("240x140+600+400")
-        self.servidor = Udp("Server", self.port)
+        self.servidor = Udp("server", self.port)
         self.titulo = Label(self.frame, text = 'Informe o DNS', bg = self.cor)
-        Label(self.frame, text = "Digite o Ip: ", bg = self.cor).grid(row = 1, pady = 2)
+        Label(self.frame, text = "Digite o Ip: ",bg = self.cor).grid(row = 1, pady = 2)
         Label(self.frame, text = "Digite a porta:", bg = self.cor).grid(row = 2, pady = 2)
         Label(self.frame, text = "Digite o nome:", bg = self.cor).grid(row = 3, pady = 2)
         
