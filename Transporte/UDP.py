@@ -33,13 +33,15 @@ class Udp:
         try:
             nomes = listdir(pasta)
             for arquivo in nomes:
-                self.report += " " + arquivo
+                self.responder("NAME "+pasta+"/"+arquivo, destino)
                 self.enviarArquivo(pasta+"/"+arquivo, destino)
                 if self.report.split()[0] != "FINISH":
                     break
         except:
             if self.report.split()[0] != "FAIL":
                 self.report = "FAIL FOLDER"
+        finally:
+            self.responder("CLOSE CONN", destino)
 
     def enviarArquivo(self, path, destino):
         self.report = "FINISH"
@@ -51,13 +53,11 @@ class Udp:
 
         if self.report == "FINISH":
             try:
-                self.responder("FILE "+path, destino)
                 parte = arquivo.read(2048)
                 while parte:
                     ack = self.enviar(destino, parte)
                     if ack != "FAIL":
                         self.tentativa = 0
-                        self.report = str(ack.decode())
                         parte = arquivo.read(2048)
                     else:
                         self.tentativa += 1
@@ -70,34 +70,38 @@ class Udp:
                 arquivo.close()
 
     def enviar(self, destino, mensagem):
+        resultado = "FINISH"
         try:
-            self.client.sendto(mensagem, destino)
+            self.control.sendto(mensagem, destino)
+        except:
+            resultado = "FAIL"
+
+        if resultado == "FINISH":
             try:
-                mensagem, address = self.client.recvfrom(2048)
+                mensagem, address = self.control.recvfrom(2048)
                 resultado = mensagem
             except:
                 resultado = "FAIL"
-        except:
-            resultado = "FAIL"
         return resultado
 
     def receberArquivo(self, nome):
         ack = 0
         arquivo = open(nome, "wb")
         try:
-            parte, address = self.server.recvfrom(2048)
+            parte, address = self.control.recvfrom(2048)
+        except:
+            self.report = "FAIL TIME" # Não é uma boa essa!!
+        
+        if self.report != "FAIL TIME":
             try:
                 while parte != b"CLOSE CONN":
                     arquivo.write(parte)
                     ack += len(parte)
                     mensagem = "ACK "+str(ack)
-                    self.server.sendto(mensagem.encode(), address)
-                    parte, address = self.server.recvfrom(2048)
+                    self.control.sendto(mensagem.encode(), address)
+                    parte, address = self.control.recvfrom(2048)
                 self.report = "FINISH"
             except:
                 self.report = "FAIL SEND"
-        except:
-            self.report = "FAIL TIME" # Não é uma boa essa!!
-        arquivo.close()
 
     def getReport(self): return self.report

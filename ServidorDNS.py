@@ -74,3 +74,4 @@ class Dns(Objeto):
 
 if __name__ == '__main__':
     program = Dns()
+    program.janela.mainloop()

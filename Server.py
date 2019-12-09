@@ -142,3 +142,4 @@ class Server(Objeto):
 
 if __name__ == '__main__':
     servidor = Server()
+    servidor.janela.mainloop()

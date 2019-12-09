@@ -67,6 +67,7 @@ class Client(Objeto):
         
         Label(self.frame, text = "Arquivos recebidos:", bg = self.cor).grid(row = 3)
         self.lista = Listbox(self.frame, width = 35)
+        self.lista.insert(END, "Servidor:\n")
         self.listar()
         enviar = Button(self.frame, text = "Requisitar", command = self.verificar3)
         listar = Button(self.frame, text = "Listar", command = self.listar)
@@ -80,7 +81,6 @@ class Client(Objeto):
         listar.grid(row = 5, column = 1, columnspan = 3)
 
     def listar(self):
-        self.lista.insert(END, "Servidor:")
         self.servidor.responder("LIST all", self.serverAddress)
         mensagem, ip, port = self.servidor.receber()
         if mensagem != None:
@@ -88,7 +88,8 @@ class Client(Objeto):
             for i in dic:
                 self.lista.insert(END, i)
                 for j in dic[i]:
-                    self.lista.insert(END, "  "+j)
+                    self.lista.insert(END, "      "+j)
+            self.lista.insert(END, "")
             self.lista.insert(END, "Recebidos")
         else:
             self.messageRed("Problema no servidor!")
@@ -104,30 +105,35 @@ class Client(Objeto):
 
     def verificar3(self):
         if self.variavel.get() == 0:
-            self.messageBlack("Enviando arquivo")
+            self.messageBlack("Requisitando arquivo")
             self.recebeArquivo(self.entrada1.get())
         else:
-            self.messageBlack("Enviando arquivos")
+            self.messageBlack("Requisitando arquivos")
             self.recebePasta(self.entrada2.get())
 
     def recebeArquivo(self, nome):
-        resultado = self.servidor.responder("FILE "+nome, self.serverAddress)
-        if resultado != "FAIL":
-            self.servidor.receberArquivo(nome)
-            resultado = self.servidor.getReport()
-            if resultado.split()[0] == "FINISH":
-                self.messageBlack("Arquivo recebido com Sucesso!")
-                self.lista.insert(END, nome)
-            else:
-                resultado = resultado.split()[1]
-                if resultado == "SEND":
-                    self.messageRed("Erro no envio!")
-                elif resultado == "TIME":
-                    self.messageRed("Servidor inacessível!")
+        try:
+            makedirs('/'.join(nome.split("/")[:-1]))
+        except:
+            self.messageBlack("Pasta já existente")
+        finally:
+            resultado = self.servidor.responder("FILE "+nome, self.serverAddress)
+            if resultado != "FAIL":
+                self.servidor.receberArquivo(nome)
+                resultado = self.servidor.getReport()
+                if resultado.split()[0] == "FINISH":
+                    self.messageBlack("Arquivo recebido com Sucesso!")
+                    self.lista.insert(END, nome)
                 else:
-                    self.messageRed("Algo deu errado...")
-        else:
-            self.messageRed("Servidor inacessível")
+                    resultado = resultado.split()[1]
+                    if resultado == "SEND":
+                        self.messageRed("Erro no envio!")
+                    elif resultado == "TIME":
+                        self.messageRed("Servidor inacessível!")
+                    else:
+                        self.messageRed("Algo deu errado...")
+            else:
+                self.messageRed("Servidor inacessível")
 
     def recebePasta(self, caminho):
         try:
@@ -135,13 +141,12 @@ class Client(Objeto):
         except:
             self.messageBlack("Pasta já existente")
         finally:
-            quant = len(listdir(caminho))
             resultado = self.servidor.responder("FOLDER "+caminho, self.serverAddress)
             if resultado != "FAIL":
                 enviou = True
                 self.lista.insert(END, caminho)
-                for i in range(quant):
-                    mensagem, ip, port = self.servidor.receber()
+                mensagem, ip, port = self.servidor.receber()
+                while mensagem != "CLOSE CONN" and mensagem != None:
                     nome = mensagem.split()[1]
                     self.servidor.receberArquivo(nome)
                     resultado = self.servidor.getReport()
@@ -149,11 +154,17 @@ class Client(Objeto):
                         enviou = False
                         break
                     else:
-                        self.lista.insert(END, nome)
-                if enviou == True:
+                        self.lista.insert(END, "      " + nome)
+                    mensagem, ip, port = self.servidor.receber()
+                if enviou == True and mensagem != None:
                     self.messageBlack("Pasta recebida!")
+                elif resultado == "SEND":
+                    self.messageRed("Erro no envio!")
+                elif resultado == "TIME" or mensagem == None:
+                    self.messageRed("Servidor inacessível!")
                 else:
-                    self.messageRed("Algo deu errado.")
+                    self.messageRed("Algo deu errado...")
 
 if __name__ == '__main__':
     servidor = Client()
+    servidor.janela.mainloop()
