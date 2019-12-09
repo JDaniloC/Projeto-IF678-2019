@@ -120,7 +120,7 @@ class Server(Objeto):
             if resultado == "FOLDER":
                 self.messageRed("Pasta inacessível!")
             elif resultado == "SEND":
-                self.messageRed("Servidor inacessível!")
+                self.messageRed("Cliente inacessível!")
             elif resultado == "FILE":
                 self.messageRed("Arquivo inacessível!")
             else:
