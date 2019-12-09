@@ -20,12 +20,12 @@ class Udp:
                 mensagem, endereco = self.control.recvfrom(2048)
                 if bytes == None:
                     mensagem = mensagem.decode()
-                    print("RECEBENDO MENSAGEM {mensagem}")
+                    print(f"RECEBENDO MENSAGEM {mensagem}")
                     self.control.sendto(b"ACK 0", endereco)
-                    print("ENVIANDO ACK 0")
+                    print(f"ENVIANDO ACK 0")
                 else:
                     resposta = "ACK " + str(bytes + len(mensagem))
-                    print("RECEBENDO {resposta}")
+                    print(f"RECEBENDO {resposta}")
                     self.control.sendto(resposta.encode(), endereco)
             except:
                 tentativa += 1
@@ -44,7 +44,7 @@ class Udp:
                     self.control.sendto(mensagem, endereco)
                 mensagem, address = self.control.recvfrom(2048)
                 resultado, ack = mensagem.decode().split()
-                print("RECEBENDO {resultado} {ack}")
+                print(f"RECEBENDO {resultado} {ack}")
                 if resultado == "ACK" and endereco == address and (bytes == None or ack == bytes):
                     resultado = 'FINISH'
                 else:

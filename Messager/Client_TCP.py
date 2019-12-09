@@ -8,7 +8,7 @@ def loading():
         print(".", end='')
     print()
 
-name = '172.20.4.154'
+name = '127.0.0.1'
 port = 12000
 client = socket(AF_INET, SOCK_STREAM)
 client.connect((name, port))
