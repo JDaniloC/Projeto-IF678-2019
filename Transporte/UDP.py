@@ -11,21 +11,40 @@ class Udp:
 
         self.report = 'FINISH'
 
-    def receber(self):
-        try:
-            mensagem, endereco = self.control.recvfrom(2048)
-            mensagem = mensagem.decode()
-        except:
-            mensagem = None
-            endereco = ('0', 0)
+    def receber(self, bytes = None):
+        tentativa = 0
+        mensagem = None
+        endereco = ('0', 0)
+        while tentativa < 3 and mensagem == None:
+            try:
+                mensagem, endereco = self.control.recvfrom(2048)
+                if bytes == None:
+                    mensagem = mensagem.decode()
+                    self.control.sendto(b"ACK 0", endereco)
+                else:
+                    resposta = "ACK " + str(bytes + len(mensagem))
+                    self.control.sendto(resposta, endereco)
+            except:
+                tentativa += 1
         return (mensagem, ) + endereco
 
-    def responder(self, mensagem, endereco):
-        try:
-            self.control.sendto(mensagem.encode(), endereco)
-            resultado = 'FINISH'
-        except:
-            resultado = 'FAIL'
+    def responder(self, mensagem, endereco, bytes = None):
+        resultado = "FAIL"
+        tentativa = 0
+        while resultado == "FAIL" and tentativa < 3:
+            try:
+                if bytes == None:
+                    self.control.sendto(mensagem.encode(), endereco)
+                else:
+                    self.control.sendto(mensagem, endereco)
+                mensagem, address = self.control.recvfrom(2048)
+                resultado, ack = mensagem.decode().split()
+                if resultado == "ACK" and endereco == address and (bytes == None or ack == bytes):
+                    resultado = 'FINISH'
+                else:
+                    tentativa += 1
+            except:
+                tentativa += 1
         return resultado
     
     def enviarPasta(self, pasta, destino):
@@ -45,7 +64,7 @@ class Udp:
 
     def enviarArquivo(self, path, destino):
         self.report = "FINISH"
-        self.tentativa = 0
+        ack = 0
         try:
             arquivo = open(path, 'rb')
         except:
@@ -54,54 +73,31 @@ class Udp:
         if self.report == "FINISH":
             try:
                 parte = arquivo.read(2048)
+                ack += len(parte)
                 while parte:
-                    ack = self.enviar(destino, parte)
+                    ack = self.responder(parte, destino, str(ack))
                     if ack != "FAIL":
-                        self.tentativa = 0
                         parte = arquivo.read(2048)
                     else:
-                        self.tentativa += 1
-                        if self.tentativa == 3:
-                            parte = False
+                        parte = False
+                        self.report = "FAIL SEND"
                 self.responder("CLOSE CONN", destino)
             except:
                 self.report = "FAIL SEND"
             finally:
                 arquivo.close()
 
-    def enviar(self, destino, mensagem):
-        resultado = "FINISH"
-        try:
-            self.control.sendto(mensagem, destino)
-        except:
-            resultado = "FAIL"
-
-        if resultado == "FINISH":
-            try:
-                mensagem, address = self.control.recvfrom(2048)
-                resultado = mensagem
-            except:
-                resultado = "FAIL"
-        return resultado
-
     def receberArquivo(self, nome):
         ack = 0
         arquivo = open(nome, "wb")
         try:
-            parte, address = self.control.recvfrom(2048)
+            parte, ip, port = self.receber(ack)
+            while parte != b"CLOSE CONN":
+                arquivo.write(parte)
+                ack += len(parte)
+                parte, ip, port = self.receber(ack)
+            self.report = "FINISH"
         except:
-            self.report = "FAIL TIME" # Não é uma boa essa!!
-        
-        if self.report != "FAIL TIME":
-            try:
-                while parte != b"CLOSE CONN":
-                    arquivo.write(parte)
-                    ack += len(parte)
-                    mensagem = "ACK "+str(ack)
-                    self.control.sendto(mensagem.encode(), address)
-                    parte, address = self.control.recvfrom(2048)
-                self.report = "FINISH"
-            except:
-                self.report = "FAIL SEND"
+            self.report = "FAIL SEND"
 
     def getReport(self): return self.report
