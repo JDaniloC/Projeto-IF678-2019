@@ -164,6 +164,8 @@ class Client(Objeto):
                     self.messageRed("Servidor inacessível!")
                 else:
                     self.messageRed("Algo deu errado...")
+            else:
+                self.messageRed("Não consegui conectar!")
 
 if __name__ == '__main__':
     servidor = Client()

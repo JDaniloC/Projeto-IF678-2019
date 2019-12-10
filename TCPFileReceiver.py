@@ -22,7 +22,10 @@ class Receiver:
             arquivo.write(parte)
             parte = self.client.recv(2048)
             self.enviar("ACK")
-        print("Arquivo recebido com sucesso!")
+        if parte != b"ERRO FILE":
+            print("Arquivo recebido com sucesso!")
+        else:
+            print("Aconteceu um erro.")
         arquivo.close()
         self.enviar("ACK")
         

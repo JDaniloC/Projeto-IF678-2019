@@ -41,10 +41,10 @@ class Server(Objeto):
             if self.servidor.responder("SignIn "+mensagem, (ip, int(porta))) != "FAIL":
                 self.principal()
             else:
-                self.titulo['text'] = "Não consegui esse conectar"
+                self.titulo['text'] = "Não consegui conectar!"
                 self.titulo['fg'] = 'red'
         else:
-            self.titulo['text'] = 'Digite as informações corretamente'
+            self.titulo['text'] = 'Digite as informações corretamente!'
             self.titulo['fg'] = 'red'
     
     def principal(self):
@@ -52,7 +52,7 @@ class Server(Objeto):
         self.janela.geometry("230x280+600+400")
 
         Label(self.frame, text = "Servidor de Arquivos", bg = self.cor).grid(row = 0, columnspan = 3)
-        Label(self.frame, text = "Arquivos recebidos:", bg = self.cor).grid(row = 1)
+        Label(self.frame, text = "Arquivos enviados:", bg = self.cor).grid(row = 1)
         self.lista = Listbox(self.frame, width = 35)
         self.resultado = Label(self.frame, text = "Inativo", bg = self.cor)
         self.ligar = Button(self.frame, text = "Ligar", command = self.turnOn)
@@ -101,6 +101,7 @@ class Server(Objeto):
         resultado = self.servidor.getReport()
         if resultado.split()[0] == "FINISH":
             self.messageBlack("Arquivo enviado com Sucesso!")
+            self.lista.insert(END, nome)
         else:
             resultado = resultado.split()[1]
             if resultado == "SEND":
@@ -115,6 +116,7 @@ class Server(Objeto):
         resultado = self.servidor.getReport()
         if resultado.split()[0] == "FINISH":
             self.messageBlack("Arquivos enviados com Sucesso!")
+            self.lista.insert(END, nome)
         else:
             resultado = resultado.split()[1]
             if resultado == "FOLDER":
