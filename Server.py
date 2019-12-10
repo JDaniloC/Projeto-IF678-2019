@@ -116,7 +116,7 @@ class Server(Objeto):
         resultado = self.servidor.getReport()
         if resultado.split()[0] == "FINISH":
             self.messageBlack("Arquivos enviados com Sucesso!")
-            self.lista.insert(END, nome)
+            self.lista.insert(END, path)
         else:
             resultado = resultado.split()[1]
             if resultado == "FOLDER":
