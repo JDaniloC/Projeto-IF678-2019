@@ -1,8 +1,10 @@
 from tkinter import *
 from socket import *
-from Objeto import Objeto
-from Transporte.UDP import Udp
 from os import listdir
+
+from Objeto import Objeto
+from Utils.UDP import Udp
+from Utils.listar import *
 
 class Server(Objeto):
     def __init__(self):

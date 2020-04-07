@@ -1,6 +1,8 @@
 from socket import *
-from Transporte.UDP import Udp
 from os import listdir
+
+from Utils.UDP import Udp
+from Utils.listar import *
 
 class Sender:
     def __init__(self, port):
@@ -15,6 +17,9 @@ class Sender:
 
     def receber(self):
         return self.client.recv(2048).decode()
+
+    def responder(self, mensagem):
+        self.client.send(mensagem.encode())
 
     def enviarArquivo(self, path):
         try:
@@ -55,6 +60,9 @@ while verificador:
     if message.split()[0] == "FILE":
         print(f"Ele requisitou o arquivo {message.split()[1]}.")
         control.enviarArquivo(message.split()[1])
+    elif message.split()[0] == "LIST":
+        print("Enviando lista de arquivos")
+        control.responder(codificar(listar()))
     elif message.split()[0] == "CLOSE":
         print("Fechando server.")
         control.fecharConexao()

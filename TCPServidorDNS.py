@@ -1,5 +1,6 @@
 from socket import *
-from Transporte.UDP import Udp
+
+from Utils.UDP import Udp
 
 dic = {}
 server = Udp('server', 54000)
@@ -16,5 +17,7 @@ while True:
             print(dic)
         else:
             print("Enviando servidor...")
+            if mensagem[1] not in dic:
+                dic[mensagem[1]] = 'NULL'
             server.responder(dic[mensagem[1]], (ip, port))
         

@@ -2,6 +2,10 @@ from tkinter import *
 from socket import *
 
 class Objeto:
+    '''
+    Classe que dá o layout base para as classes client/server
+    Fazendo a primeira janela
+    '''
     def __init__(self, titulo, cor, porta):
         self.janela = Tk()
         self.janela.title(titulo)
@@ -36,12 +40,6 @@ class Objeto:
         else:
             self.titulo['text'] = 'Digite a porta corretamente!'
             self.titulo['fg'] = 'red'
-
-    def main(self):
-        pass
-    
-    def iniciar(self):
-        pass
     
     def limpa(self):
         for widget in self.frame.winfo_children():
@@ -55,7 +53,8 @@ class Objeto:
         self.resultado['text'] = message
         self.resultado['fg'] = 'red'
 
-if __name__ == "__main__":
-    print("oi")
-    objeto = Objeto("Default", 'black', 1000)
-    objeto.inicio()
+    def main(self):
+        pass
+    
+    def iniciar(self):
+        pass

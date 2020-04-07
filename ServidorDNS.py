@@ -1,6 +1,6 @@
 from tkinter import *
 from socket import *
-from Transporte.UDP import Udp
+from Utils.UDP import Udp
 from Objeto import Objeto
 
 class Dns(Objeto):

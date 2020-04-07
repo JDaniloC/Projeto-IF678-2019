@@ -1,5 +1,6 @@
 from socket import *
-from Transporte.UDP import Udp
+
+from Utils.UDP import Udp
 
 class Receiver:
     def __init__(self, ip, port):
@@ -35,14 +36,27 @@ class Receiver:
 name = '127.0.0.1'
 port = 54000
 dns = Udp('')
-message = "GET " + input("Nome do servidor: ")
-dns.responder(message, (name, port))
-name, ip, port = dns.receber()
+while True:
+    message = "GET " + input("Nome do servidor: ")
+    dns.responder(message, (name, port))
+    name, ip, port = dns.receber()
+    if name != 'NULL':
+        break
+    else:
+        print("Servidor não encontrado")
 dns.control.close()
 
 serverIp, serverPort = name.split(":")
 control = Receiver(serverIp, int(serverPort))
 verificador = True
+
+print('''
+Comandos:
+file CAMINHODOARQUIVO
+list all
+close conn
+''')
+
 while verificador:
     comando = input("Digite o comando:")
     if len(comando.split()) == 2:
@@ -55,6 +69,12 @@ while verificador:
         mensagem = control.receber().split()[1].split("/")[-1]
         control.enviar("ACK")
         control.receberArquivo(mensagem)
+    elif requisicao.upper() == 'LIST':
+        print("Pedindo arquivos.")
+        control.enviar("LIST ALL")
+        mensagem = control.receber()
+        for i in mensagem.split('§'):
+            print(i)
     elif requisicao.upper() == "CLOSE":
         print("Fechando...")
         control.enviar("CLOSE CONN")

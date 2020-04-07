@@ -1,8 +1,9 @@
 from tkinter import *
 from socket import *
-from Objeto import Objeto
-from Transporte.UDP import Udp
 from os import makedirs
+
+from Objeto import Objeto
+from Utils.UDP import Udp
 
 class Client(Objeto):
     def __init__(self):
